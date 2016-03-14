@@ -1,0 +1,16 @@
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+# The loopback network interface
+iface lo inet loopback
+
+# The primary network interface
+iface eth0 inet dhcp
+
+# WiFi Setup Client on wlan0 + AP on wlan1
+iface wlan0 inet dhcp
+iface wlan1 inet static
+    address 192.168.12.1
+
+#Enable on startup
+auto lo eth0
