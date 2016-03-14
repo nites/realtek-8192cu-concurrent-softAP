@@ -4,7 +4,7 @@ Some scripts to build and install the Realtek 8192cu driver via dkms, with concu
 
 ## Why?
 
-The default firmware-realtek drivers in debian jessie do not support simultaneous AP and client mode.  Similarly, the realtek 8192cu drivers don't support it by default.  So this repository has a (barely) modified verasion of the https://github.com/pvaret/rtl8192cu-fixes driver, and semi-automates the installation of the driver, hostapd, isc-dhcp-server and config files to get a (hopefully) working AP + client combination to save a lot of time and hassle.
+The default firmware-realtek drivers in debian jessie do not support simultaneous AP and client mode.  Similarly, the realtek 8192cu drivers don't support it by default.  So this repository has a tweaked version of the https://github.com/pvaret/rtl8192cu-fixes driver, and semi-automates the installation of the driver, hostapd, isc-dhcp-server and config files to get a (hopefully) working AP + client combination to save a lot of time and hassle.
 
 The initial directions to enable concurrent mode came from Aid Vllasaliu's excellent blog post here: http://randomstuffidosometimes.blogspot.com/2016/03/rtl8192cu-and-rtl8188cus-in-station-and.html
 
@@ -55,6 +55,7 @@ Make the driver and install via dkms:
     #   Note if you prefer to pull the sources from git clone pvaret/rtl8192cu-fixes then run the following lines now (note any version changes, based on 1.10)
     #      rm -rf rtl8192cu-fixes 
     #      git clone https://github.com/pvaret/rtl8192cu-fixes.git
+    #   Make sure to manually enable concurrency in rtl8192cu-fixes/include/autoconf.h - see "Notes" section below
 
     cd rtl8192cu-fixes
     make
@@ -96,17 +97,17 @@ Open up the "configs" folder, where there are configuration files for hostapd, d
 
 Check and modify these as necessary.  The config files present should  work out of the box for the following configuration:
 
-    hostapd version 2.4
-    dhcpd version 4.3.1 
-    ethernet dhcp, wlan0 dhcp (for client) and wlan1 static (for AP)
+    # hostapd version 2.4
+    # dhcpd version 4.3.1 
+    # ethernet dhcp, wlan0 dhcp (for client) and wlan1 static (for AP)
 
 In hostapd.conf, the configuration is as follows by default:
 
-    #AP SSID: MySoftAP
-    #AP password: MyPassword
-    #AP IP address: 192.168.12.1
-    #AP dhcp range: 192.168.12.10 - 192.168.12.20
-    #WPA2 (realtek driver has problems with WPA1)
+    # AP SSID: MySoftAP
+    # AP password: MyPassword
+    # AP IP address: 192.168.12.1
+    # AP dhcp range: 192.168.12.10 - 192.168.12.20
+    # WPA2 used (realtek driver has problems with WPA1)
 
 These and other settings may be altered at this point, or later in /etc/hostapd/hostapd.conf.  If you have a different version of isc-dhcp-server installed or need a different network configuration, you can alter the dhcp.conf and interfaces configs as necessary now before installing.  If you are not sure, leave them alone so you hopefully get a working AP to use as a baseline and can modify as desired later.
 
@@ -183,7 +184,7 @@ Before bringing up the wireless interfaces, if you need to create a wpa_supplica
     wpa_passprase SSID_To_Connect_To SSID_Password > /etc/wpa_supplicant.conf
 
 ### Bring-up code
-Then running the following "Bring-up" code will create a softAP and also connect the client.  After running, you can run ifconfig and do some ping tests to verify.  If not, check the hostapd and dhcpd logs.
+Running the following "Bring-up" code will create a softAP and also connect the client.  After running, you can run ifconfig and do some ping tests to verify.  If not, check the hostapd and dhcpd logs.
 
     killall wpa_supplicant hostapd dnsmasq dhcpd
     ifdown wlan1
@@ -198,13 +199,13 @@ This can also be done by running ./bring-up.sh in the project root.
 
 ## Further steps
 
-At this point you should be able to connect to and ping the AP from another device, and also use the client connection on the BBB/RPI/Host machine simukltaneously.
+At this point you should be able to connect to and ping the AP from another device, and also use the client connection on the BBB/RPI/Host machine simultaneously.
 
 Note - I have not added any routing to IPTABLES.  So while you will be able to ping your AP you won't get internet.  There are plenty of tutorials on setting up Bridging / Routing elsewhere (I think) so google it!  What this should hopefully give you is a stable base with a simultaneous AP / Client running, on top of which to do whatever else you'd like.
 
 Beyond that - I'm not going to give any further direction on what to do from here.  There are two approaches possible for managing the connections:
 
-1. Disable hostapd, isc-dhcp-server, dnsmasq (if installed) from running at startup and manually start the interfaces.  This could be done by inserting the startup code into a rc5.d script or otherwise.
+1. Disable hostapd, isc-dhcp-server, dnsmasq (if installed) from running at startup and manually start the interfaces.  This could be done by inserting the bring-up code into a rc5.d script or otherwise.
 
 2. Leave hostapd, isc-dhcp-server start at startup and modify /etc/network/interfaces to have auto wlan0 wlan1.  This did not work for me as the interface was not ready in time for hostapd or isc-dhcp-server, but I am sure with a little tweaking it could be done and fully managed by the system.
 
@@ -212,7 +213,7 @@ For me - doing it via a rc5.d script was enough for my needs.  I may come back a
 
 ## Notes
 
-Concurrent mode has been enabled in the modified realtek driver in rtl8192cu-fixes/include/autoconf.h - after modification the section looks like:
+Concurrent mode has been enabled by uncommenting some lines in the modified realtek driver in rtl8192cu-fixes/include/autoconf.h - after modification the relevant section looks like:
 
     #define CONFIG_CONCURRENT_MODE 1
     #ifdef CONFIG_CONCURRENT_MODE
