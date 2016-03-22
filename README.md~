@@ -22,18 +22,13 @@ Note - all commands below generally assume root access is already present.  `sud
 Pre-Jessie:
 
     apt-get update
-    apt-get install linux-headers-$(uname -r) build-essential dkms git psmisc libnl-dev pkg-config
+    apt-get install linux-headers-$(uname -r) build-essential dkms git psmisc libnl-dev
 
 Jessie:
 
     apt-get update
-    apt-get install linux-headers-$(uname -r) build-essential dkms git psmisc libnl-3-dev pkg-config
+    apt-get install linux-headers-$(uname -r) build-essential dkms git psmisc libnl-3-dev
 
-### Make sure your build environment is ok
-
-On BBB Jessie, I had to run the following to ensure the correct headers were available in the right place:
-
-    ln -s /usr/src/linux-headers-4.1.18-ti-rt-r51/arch/arm /usr/src/linux-headers-4.1.18-ti-rt-r51/arch/armv7l
 
 ### Removal of previous driver modules
 
