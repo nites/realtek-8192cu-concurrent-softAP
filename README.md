@@ -19,7 +19,7 @@ Minimum kernel version of 3.11, and dkms support required.
 
 Note - all commands below generally assume root access is already present.  `sudo su` or login as root before running if not.
 
-Pre-Jessie:
+Pre-Jessie (untested - may require additional packages):
 
     apt-get update
     apt-get install linux-headers-$(uname -r) build-essential dkms git psmisc libnl-dev pkg-config
@@ -27,7 +27,7 @@ Pre-Jessie:
 Jessie:
 
     apt-get update
-    apt-get install linux-headers-$(uname -r) build-essential dkms git psmisc libnl-3-dev pkg-config
+    apt-get install linux-headers-$(uname -r) build-essential dkms git psmisc libnl-3-dev libnl-genl-3-dev pkg-config
 
 ### Make sure your build environment is ok
 
