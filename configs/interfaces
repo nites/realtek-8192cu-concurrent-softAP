@@ -1,6 +1,9 @@
 # This file describes the network interfaces available on your system
 # and how to activate them. For more information, see interfaces(5).
 
+allow-hotplug wlan0
+allow-hotplug wlan1
+
 # The loopback network interface
 iface lo inet loopback
 
